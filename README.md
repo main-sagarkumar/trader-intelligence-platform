@@ -11,7 +11,7 @@ The project combines unsupervised learning, supervised learning, model serving, 
 
 ## Solution Architecture
 
-![Architecture](docs/architecture.png)
+<img src="docs/architecture.png" alt="Architecture" width="350" />
 
 ## Business Problem
 Most trading platforms treat all traders the same, despite significant differences in risk appetite, discipline, leverage usage, and profitability. This platform addresses that gap with a full ML pipeline that:
