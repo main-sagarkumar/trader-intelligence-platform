@@ -5,14 +5,20 @@
 ---
 
 ## Overview
+An end-to-end Machine Learning platform that analyzes trader behavior, segments traders into behavioral personas, predicts future trader segments from early trading activity, and generates personalized recommendations.
 
+The project combines unsupervised learning, supervised learning, model serving, testing, containerization, and deployment-ready infrastructure into a single production-style workflow.
+
+## Solution Architecture
+
+![Architecture](docs/architecture.png)
+
+## Business Problem
 Most trading platforms treat all traders the same, despite significant differences in risk appetite, discipline, leverage usage, and profitability. This platform addresses that gap with a full ML pipeline that:
 
 1. **Segments traders** into behavioral personas using unsupervised clustering.
 2. **Predicts a new trader's future segment** from just their first 20 trades.
 3. **Delivers personalized recommendations** based on predicted behavior.
-
-The project integrates unsupervised learning, supervised learning, a REST API, an interactive dashboard, automated testing, and Docker, built as a production-style system.
 
 ---
 
@@ -33,23 +39,37 @@ The project integrates unsupervised learning, supervised learning, a REST API, a
 
 ```
 Raw Trade Data
-     ↓
+        │
+        ▼
 Feature Engineering
-     ↓
-Trader Feature Matrix
-     ↓
-KMeans Clustering ──────────────────────→ Trader Segments (labels)
-     ↓                                              ↓
-Early Feature Extraction             Segment Profiles & Insights
-(first 20 trades)
-     ↓
+        │
+        ▼
+Trader Features
+        │
+        ├──────────────────────► KMeans Clustering
+        │                               │
+        │                               ▼
+        │                       Trader Segments (labels)
+        │                               │
+        ▼                               │
+Early Trader Features ◄─────────────────┘
+(first 20 trades)              (labels assigned to
+        │                       early feature rows)
+        ▼
 Random Forest Classifier
-     ↓
+        │
+        ▼
 Future Segment Prediction + Confidence Score
-     ↓
+        │
+        ▼
 Recommendation Engine
-     ↓
-FastAPI  /  Streamlit
+        │
+        ▼
+    FastAPI API
+        │
+        ├──────────► Swagger UI
+        │
+        └──────────► Streamlit Dashboard
 ```
 
 ---
