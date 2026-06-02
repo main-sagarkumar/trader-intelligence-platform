@@ -1,0 +1,49 @@
+import joblib
+import pandas as pd
+
+from configs.paths_config import MODEL_DIR
+from configs.model_config import CLUSTERING_FEATURES
+
+
+
+def load_models():
+
+    # Load trained scaler
+    scaler = joblib.load(MODEL_DIR / "scaler.pkl")
+
+    # Load trained KMeans model
+    kmeans = joblib.load(MODEL_DIR / "kmeans_model.pkl")
+
+    return scaler, kmeans
+
+
+def predict_cluster(trader_features):
+
+    scaler, kmeans = load_models()
+
+    feature_df = pd.DataFrame([trader_features], columns=CLUSTERING_FEATURES)
+
+    scaled_features = pd.DataFrame(scaler.transform(feature_df),
+                                   columns=CLUSTERING_FEATURES)
+
+    cluster = kmeans.predict(scaled_features)[0]
+
+    return int(cluster)
+
+
+if __name__ == "__main__":
+
+    sample_trader = {
+        "total_trades": 150,
+        "avg_pnl": 500,
+        "roi_pct": 0.08,
+        "avg_holding_minutes": 2400,
+        "avg_leverage": 2,
+        "win_rate": 0.70
+    }
+
+    cluster = predict_cluster(
+        sample_trader
+    )
+
+    print("\nPredicted Cluster:", cluster)

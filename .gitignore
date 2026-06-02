@@ -1,0 +1,58 @@
+# Python
+**pycache**/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual Environment
+venv/
+.venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / Editor
+.vscode/
+.idea/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Environment Variables
+.env
+
+# ML Experiment Tracking
+mlruns/
+
+# Generated Outputs
+outputs/
+
+# Data Files
+# Raw source data
+data/raw/
+
+# Generated feature datasets
+data/feature_store/
+
+# Optional exports
+data/exports/
+
+# Logs
+*.log
+
+# Docker
+.docker/
+
+# Streamlit
+.streamlit/secrets.toml
