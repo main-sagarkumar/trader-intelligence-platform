@@ -5,9 +5,20 @@
 ---
 
 ## Overview
-An end-to-end Machine Learning platform that analyzes trader behavior, segments traders into behavioral personas, predicts future trader segments from early trading activity, and generates personalized recommendations.
+An end-to-end Machine Learning platform that:
+- Analyzes trader behavior
+- Segments traders into behavioral personas
+- Predicts future trader segments from early trading activity
+- Generates personalized recommendations.
 
 The project combines unsupervised learning, supervised learning, model serving, testing, containerization, and deployment-ready infrastructure into a single production-style workflow.
+
+## 🚀 Live Deployment:
+### Dashboard: https://trader-intelligence-dashboard-532641891308.asia-south1.run.app
+### API Documentation (Swagger): https://trader-intelligence-api-532641891308.asia-south1.run.app/docs
+### Source Code: https://github.com/main-sagarkumar/trader-intelligence-platform
+
+---
 
 ## Solution Architecture
 
