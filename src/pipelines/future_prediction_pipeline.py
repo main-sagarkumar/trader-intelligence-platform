@@ -10,7 +10,7 @@ Pipeline:
 2. Retrieve segment profile and recommendations
 3. Generate a business-friendly intelligence report
 """
-
+import pandas as pd
 from src.prediction.future_segment_predictor import predict_future_profile
 
 from src.prediction.recommendation_engine import get_trader_recommendations
@@ -41,12 +41,14 @@ def predict_future_trader_profile(trader_features: dict,) -> dict:
 
     cluster = prediction["cluster"]
     confidence = prediction["confidence"]
+    top_clusters = prediction["top_clusters"]
 
     profile = get_trader_recommendations(cluster)
 
     return {
         "cluster": cluster,
         "confidence": confidence,
+        "top_clusters": top_clusters,
         **profile,
     }
 
@@ -74,7 +76,7 @@ if __name__ == "__main__":
     print("FUTURE TRADER INTELLIGENCE REPORT")
     print("=" * 80)
 
-    print(f"\nCluster: {report['cluster']}")
+    print(f"\nCluster: \n{report['top_clusters']}")
 
     print(
         f"\nConfidence: "

@@ -60,11 +60,23 @@ def predict_future_profile(
 
     probabilities = model.predict_proba(feature_df)[0]
 
+    probability_df = (
+        pd.DataFrame({
+            "cluster": model.classes_,
+            "probability": probabilities
+        })
+        .sort_values("probability", ascending=False)
+        .head(2)
+        )
+    
+    top_clusters = probability_df.to_dict("records")
+
     confidence = float(probabilities.max())
 
     return {
         "cluster": cluster,
         "confidence": round(confidence, 4),
+        "top_clusters": top_clusters,
     }
 
 

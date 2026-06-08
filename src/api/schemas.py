@@ -49,6 +49,7 @@ class CurrentTraderResponse(BaseModel):
 class FutureTraderResponse(BaseModel):
     cluster: int
     confidence: float
+    top_clusters: list[dict]
     segment: str
     description: str
     recommendations: list[str]
