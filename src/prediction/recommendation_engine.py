@@ -1,3 +1,10 @@
+"""
+Map trader clusters to business recommendations.
+
+This module translates numeric model outputs into segment names, explanations,
+and actionable recommendations for product and risk teams.
+"""
+
 from src.clustering.cluster_definitions import (
     CLUSTER_MAPPING,
     CLUSTER_DESCRIPTIONS,
@@ -6,6 +13,15 @@ from src.clustering.cluster_definitions import (
 
 
 def get_trader_recommendations(cluster):
+    """
+    Return business metadata and recommendations for a cluster.
+
+    Args:
+        cluster: Numeric cluster ID produced by a segmentation model.
+
+    Returns:
+        Dictionary containing segment name, description, and recommendations.
+    """
 
     return {
         "segment": CLUSTER_MAPPING[cluster],

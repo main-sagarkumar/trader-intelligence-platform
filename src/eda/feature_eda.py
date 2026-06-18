@@ -1,3 +1,10 @@
+"""
+Perform exploratory analysis on engineered trader features.
+
+This module creates distribution, correlation, and persona comparison plots
+used to inspect feature quality before clustering and model training.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -6,12 +13,24 @@ from configs.paths_config import FEATURE_STORE_FILE, EDA_OUTPUT_DIR
 
 
 def load_features():
+    """
+    Load trader-level features from the feature store.
+
+    Returns:
+        DataFrame containing engineered trader features.
+    """
 
     # Load trader-level feature dataset
     return pd.read_csv(FEATURE_STORE_FILE)
 
 
 def plot_feature_histograms(df):
+    """
+    Plot distributions for core trader behavior features.
+
+    Args:
+        df: Trader-level feature DataFrame.
+    """
 
     # Core behavioral features for distribution analysis
     features = [
@@ -35,6 +54,12 @@ def plot_feature_histograms(df):
 
 
 def plot_correlation_heatmap(df):
+    """
+    Plot correlations among numeric engineered features.
+
+    Args:
+        df: Trader-level feature DataFrame.
+    """
 
     # Analyze relationships between numerical features
     numeric_df = df.select_dtypes(include="number")
@@ -56,6 +81,12 @@ def plot_correlation_heatmap(df):
 
 
 def plot_persona_boxplots(df):
+    """
+    Plot persona-level comparisons for selected behavior features.
+
+    Args:
+        df: Trader-level feature DataFrame containing persona labels.
+    """
 
     # Compare behavioral features across personas
     features = [
@@ -85,6 +116,12 @@ def plot_persona_boxplots(df):
 
 
 def feature_summary(df):
+    """
+    Print descriptive statistics for engineered trader features.
+
+    Args:
+        df: Trader-level feature DataFrame.
+    """
 
     # Quick statistical overview of engineered features
     print("\n" + "=" * 80)

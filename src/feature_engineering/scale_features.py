@@ -1,3 +1,10 @@
+"""
+Scale clustering features before KMeans segmentation.
+
+This module selects configured behavior features, standardizes them to remove
+magnitude bias, and saves the fitted scaler for inference.
+"""
+
 import pandas as pd
 
 import joblib
@@ -8,6 +15,15 @@ from configs.paths_config import FEATURE_STORE_FILE, FEATURE_STORE_DIR, MODEL_DI
 
 
 def select_clustering_features(df):
+    """
+    Select the configured feature columns used by the clustering model.
+
+    Args:
+        df: Trader-level feature DataFrame.
+
+    Returns:
+        DataFrame containing only clustering input features.
+    """
 
     # Final feature set used for clustering
     from configs.model_config import CLUSTERING_FEATURES
@@ -16,6 +32,15 @@ def select_clustering_features(df):
 
 
 def scale_features(df):
+    """
+    Standardize clustering features for distance-based modeling.
+
+    Args:
+        df: Unscaled clustering feature DataFrame.
+
+    Returns:
+        Tuple of scaled feature DataFrame and fitted StandardScaler.
+    """
 
     # Standardize features to mean=0 and std=1
     scaler = StandardScaler()

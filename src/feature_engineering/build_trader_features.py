@@ -1,3 +1,10 @@
+"""
+Build trader-level behavioral features from raw trade events.
+
+This module aggregates transaction data into the feature store used for trader
+segmentation, analytics, and downstream model training.
+"""
+
 import pandas as pd
 
 from configs.paths_config import (
@@ -7,7 +14,18 @@ from configs.paths_config import (
 
 
 def build_trader_features(df):
+    """
+    Calculate trader-level behavioral and profitability metrics.
 
+    Args:
+        df: Raw trade-level DataFrame containing PnL, leverage, outcomes,
+            risk, and trader identifiers.
+
+    Returns:
+        DataFrame with one row per trader/persona and engineered features.
+    """
+
+    # Aggregate raw trades into stable trader behavior signals.
     trader_features = (
     df.groupby(["trader_id", "persona"])
     .agg(

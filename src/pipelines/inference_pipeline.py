@@ -1,9 +1,25 @@
+"""
+Orchestrate current-trader segment inference.
+
+This pipeline combines cluster prediction with business-facing segment
+recommendations for API and dashboard consumers.
+"""
+
 from src.prediction.trader_segment_predictor import predict_cluster
 
 from src.prediction.recommendation_engine import get_trader_recommendations
 
 
 def predict_trader_profile(trader_features):
+    """
+    Predict a current trader profile from engineered behavior features.
+
+    Args:
+        trader_features: Dictionary containing current trader model features.
+
+    Returns:
+        Dictionary with cluster, segment description, and recommendations.
+    """
 
     # Predict behavioral cluster
     cluster = predict_cluster(trader_features)

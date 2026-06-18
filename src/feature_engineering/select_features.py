@@ -1,3 +1,10 @@
+"""
+Select and inspect behavioral features for trader clustering.
+
+This module centralizes the final clustering feature set and provides
+correlation diagnostics used during feature selection.
+"""
+
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -6,6 +13,15 @@ from configs.paths_config import FEATURE_STORE_FILE, EDA_OUTPUT_DIR
 
 
 def select_clustering_features(df):
+    """
+    Select final trader behavior features used for clustering.
+
+    Args:
+        df: Trader-level feature DataFrame.
+
+    Returns:
+        DataFrame containing the configured clustering features.
+    """
 
     # Behavioral features that describe trading style
 
@@ -55,6 +71,15 @@ def select_clustering_features(df):
 
 
 def feature_correlation_analysis(df):
+    """
+    Calculate pairwise feature correlations for clustering inputs.
+
+    Args:
+        df: Numeric clustering feature DataFrame.
+
+    Returns:
+        Rounded correlation matrix.
+    """
 
     # Measure linear relationships between features
     correlation_matrix = df.corr().round(2)
@@ -69,6 +94,12 @@ def feature_correlation_analysis(df):
 
 
 def plot_correlation_heatmap(correlation_matrix):
+    """
+    Save and display a heatmap for selected feature correlations.
+
+    Args:
+        correlation_matrix: Correlation matrix produced from clustering features.
+    """
 
     # Visualize feature relationships before clustering
     plt.figure(figsize=(10, 8))

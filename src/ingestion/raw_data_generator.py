@@ -1,3 +1,10 @@
+"""
+Generate synthetic trader activity data for the ML platform.
+
+This module simulates trader personas, trade events, PnL, risk behavior, and
+account evolution used by downstream feature engineering and modeling.
+"""
+
 import random
 import uuid
 
@@ -9,8 +16,17 @@ from datetime import datetime, timedelta
 from src.ingestion.personas import TRADER_PERSONAS
 
 class SyntheticTradeGenerator:
+    """Generate synthetic trade histories from configurable trader personas."""
 
     def __init__(self, num_traders=200, start_date="2025-01-01", num_days=60):
+        """
+        Initialize generator settings and deterministic trader identifiers.
+
+        Args:
+            num_traders: Number of synthetic traders to generate.
+            start_date: First business day for generated trades.
+            num_days: Number of business days to simulate.
+        """
 
         self.num_traders = num_traders
         self.start_date = datetime.strptime(start_date,"%Y-%m-%d")
@@ -24,10 +40,22 @@ class SyntheticTradeGenerator:
    
 
     def assign_persona(self):
+        """
+        Randomly assign one configured behavior persona.
+
+        Returns:
+            Persona key from TRADER_PERSONAS.
+        """
         return random.choice(list(TRADER_PERSONAS.keys()))
     
 
     def generate_trader_profiles(self):
+        """
+        Generate starting account profiles for all synthetic traders.
+
+        Returns:
+            DataFrame with trader ID, persona, account size, and balance.
+        """
 
         trader_profiles = []
 
@@ -44,12 +72,23 @@ class SyntheticTradeGenerator:
     
 
     def generate_trade_count(self, persona, trading_day):
+        """
+        Generate the number of trades for a persona on a trading day.
+
+        Args:
+            persona: Trader persona key.
+            trading_day: Business date being simulated.
+
+        Returns:
+            Positive integer trade count.
+        """
 
         persona_config = TRADER_PERSONAS[persona]
         avg_trades = persona_config["avg_trades_per_day"]
 
         if self.is_expiry_day(trading_day):
 
+            # Expiry days amplify activity for short-term and speculative personas.
             if persona == "expiry_day_gambler":
                 avg_trades *= 2
 
@@ -64,6 +103,15 @@ class SyntheticTradeGenerator:
     
 
     def generate_trade_timestamp(self, trading_day):
+        """
+        Generate an intraday timestamp during Indian market hours.
+
+        Args:
+            trading_day: Business date for the trade.
+
+        Returns:
+            Datetime representing the simulated trade time.
+        """
 
         base_date = trading_day
 
@@ -81,6 +129,16 @@ class SyntheticTradeGenerator:
     
 
     def generate_pnl(self, persona, leverage):
+        """
+        Generate trade PnL from persona-specific win/loss distributions.
+
+        Args:
+            persona: Trader persona key.
+            leverage: Leverage multiplier applied to the trade.
+
+        Returns:
+            Rounded profit or loss value.
+        """
 
         persona_config = TRADER_PERSONAS[persona]
 
@@ -88,6 +146,7 @@ class SyntheticTradeGenerator:
 
         is_win = random.random() < win_probability
 
+        # Each persona has a distinct payoff distribution to create separable behavior.
         if persona == "scalper_option_buyer":
             if is_win:
                 pnl = np.random.normal(loc=800, scale=500)
@@ -121,6 +180,19 @@ class SyntheticTradeGenerator:
     
 
     def generate_trade_event(self,trader_id,persona,trading_day,account_size, current_balance):
+        """
+        Generate one complete synthetic trade event.
+
+        Args:
+            trader_id: Synthetic trader identifier.
+            persona: Trader persona key.
+            trading_day: Business date for the trade.
+            account_size: Starting account size for risk calculations.
+            current_balance: Account balance before the trade.
+
+        Returns:
+            Dictionary containing trade-level fields used by the platform.
+        """
 
         persona_config = TRADER_PERSONAS[persona]
 
@@ -134,6 +206,7 @@ class SyntheticTradeGenerator:
 
         if self.is_expiry_day(trading_day):
 
+            # Increase risk on expiry days for personas expected to trade more aggressively.
             if persona == "expiry_day_gambler":
                 risk_percentage *= 1.5
 
@@ -179,16 +252,37 @@ class SyntheticTradeGenerator:
         
 
     def generate_trading_days(self):
+        """
+        Generate business days for the simulation period.
+
+        Returns:
+            DatetimeIndex of trading days excluding weekends.
+        """
 
         trading_days = pd.bdate_range(start=self.start_date, periods=self.num_days)
         return trading_days
     
     def is_expiry_day(self, trading_day):
+        """
+        Determine whether the given date is treated as an expiry day.
+
+        Args:
+            trading_day: Date to evaluate.
+
+        Returns:
+            True when the day is Thursday, otherwise False.
+        """
 
         return trading_day.weekday() == 3
     
 
     def generate_trade_events(self):
+        """
+        Generate the full synthetic trade-event dataset.
+
+        Returns:
+            DataFrame of trade events across all traders and trading days.
+        """
         all_trades = []
         trader_profiles = (self.generate_trader_profiles())
 
@@ -201,6 +295,7 @@ class SyntheticTradeGenerator:
             trading_days = (self.generate_trading_days())
             for trading_day in trading_days:
 
+                # Stop simulating traders once their balance falls below a viability threshold.
                 if current_balance <= self.minimum_balance_threshold:
                     break
 
@@ -220,6 +315,15 @@ class SyntheticTradeGenerator:
         return pd.DataFrame(all_trades)
     
     def generate_account_size(self, persona):
+        """
+        Generate persona-specific starting account size.
+
+        Args:
+            persona: Trader persona key.
+
+        Returns:
+            Integer account size sampled from persona-specific ranges.
+        """
 
         if persona == "scalper_option_buyer":
             return random.randint(50000, 300000)

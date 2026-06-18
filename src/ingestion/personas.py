@@ -1,3 +1,10 @@
+"""
+Define synthetic trader personas used by the data generator.
+
+Each persona captures behavioral assumptions around activity, leverage, risk,
+holding period, stop-loss discipline, and expected win probability.
+"""
+
 TRADER_PERSONAS = {
 
     "scalper_option_buyer": {

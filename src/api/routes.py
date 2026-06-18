@@ -24,6 +24,12 @@ router = APIRouter()
 
 @router.get("/health", tags=["System"],)
 def health_check():
+    """
+    Return API service health status.
+
+    Returns:
+        Dictionary confirming the service is healthy.
+    """
     return {
         "status": "healthy"
     }

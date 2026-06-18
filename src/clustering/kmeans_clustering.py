@@ -1,3 +1,10 @@
+"""
+Train and profile the KMeans trader segmentation model.
+
+This module loads engineered trader features, fits the configured clustering
+model, saves model artifacts, and prints business-facing cluster summaries.
+"""
+
 import joblib
 import pandas as pd
 
@@ -13,6 +20,12 @@ from configs.model_config import OPTIMAL_CLUSTERS
 
 
 def load_data():
+    """
+    Load original and scaled trader feature datasets for clustering.
+
+    Returns:
+        Tuple of raw trader features and scaled clustering features.
+    """
 
     # Load original trader features
     trader_features = pd.read_csv(FEATURE_STORE_FILE)
@@ -26,6 +39,15 @@ def load_data():
 
 
 def train_kmeans(scaled_features):
+    """
+    Fit the configured KMeans model on scaled trader behavior features.
+
+    Args:
+        scaled_features: Standardized feature matrix used for clustering.
+
+    Returns:
+        Tuple containing the fitted KMeans model and cluster labels.
+    """
 
     # Optimal K selected using elbow and silhouette analysis
     kmeans = KMeans(
@@ -42,6 +64,12 @@ def train_kmeans(scaled_features):
 
 
 def cluster_summary(clustered_df):
+    """
+    Print the number of traders assigned to each cluster.
+
+    Args:
+        clustered_df: Trader-level DataFrame containing a cluster column.
+    """
 
     # Number of traders in each cluster
     cluster_sizes = (
@@ -58,6 +86,15 @@ def cluster_summary(clustered_df):
 
 
 def cluster_feature_profile(clustered_df):
+    """
+    Build and print average behavioral metrics for each cluster.
+
+    Args:
+        clustered_df: Trader-level DataFrame containing features and clusters.
+
+    Returns:
+        DataFrame indexed by cluster with mean feature values.
+    """
 
     # Average feature values per cluster
     profile = (
@@ -84,6 +121,15 @@ def cluster_feature_profile(clustered_df):
 
 
 def cluster_persona_comparison(clustered_df):
+    """
+    Compare discovered clusters against the synthetic source personas.
+
+    Args:
+        clustered_df: Trader-level DataFrame containing cluster and persona.
+
+    Returns:
+        Crosstab DataFrame showing persona counts per cluster.
+    """
 
     # Compare discovered clusters with original personas
     comparison = pd.crosstab(

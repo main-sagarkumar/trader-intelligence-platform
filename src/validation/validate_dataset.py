@@ -1,9 +1,22 @@
+"""
+Validate raw synthetic trade data before feature engineering.
+
+This module prints a data quality report covering schema health, balance logic,
+time validity, and risk distributions used by downstream ML pipelines.
+"""
+
 import pandas as pd
 
 from configs.paths_config import RAW_TRADES_FILE
 
 
 def validate_dataset(df):
+    """
+    Print validation diagnostics for a raw trade dataset.
+
+    Args:
+        df: Raw trade-level DataFrame generated or ingested by the platform.
+    """
 
     print("\n" + "=" * 50)
     print("DATASET VALIDATION REPORT")

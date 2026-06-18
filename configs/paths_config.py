@@ -1,3 +1,10 @@
+"""
+Define filesystem paths used across the Trader Intelligence Platform.
+
+This configuration module centralizes data, feature-store, model, dashboard,
+and output directories and ensures required local folders exist.
+"""
+
 from pathlib import Path
 
 # Project Root

@@ -1,9 +1,25 @@
+"""
+Explore raw and trader-level behavior data during project analysis.
+
+This module prints persona, trader, and ROI summaries used to validate the
+synthetic data design before modeling.
+"""
+
 import pandas as pd
 
 from configs.paths_config import (RAW_TRADES_FILE, FEATURE_STORE_FILE)
 
 
 def persona_summary(df):
+    """
+    Summarize raw trade behavior by synthetic persona.
+
+    Args:
+        df: Raw trade-level DataFrame.
+
+    Returns:
+        DataFrame containing persona-level trade and risk metrics.
+    """
 
     summary = (
         df.groupby("persona")
@@ -27,6 +43,15 @@ def persona_summary(df):
 
 
 def trader_summary(df):
+    """
+    Aggregate raw trades into trader-level EDA metrics.
+
+    Args:
+        df: Raw trade-level DataFrame.
+
+    Returns:
+        DataFrame with one row per trader/persona.
+    """
 
     summary = (
         df.groupby(["trader_id", "persona"])
@@ -49,6 +74,15 @@ def trader_summary(df):
     return summary
 
 def trader_persona_analysis(trader_df):
+    """
+    Compare trader-level profitability and activity across personas.
+
+    Args:
+        trader_df: Trader-level summary DataFrame.
+
+    Returns:
+        DataFrame of persona-level trader aggregates.
+    """
 
     persona_analysis = (
         trader_df.groupby("persona")
@@ -69,6 +103,15 @@ def trader_persona_analysis(trader_df):
     return persona_analysis
 
 def roi_analysis(trader_features):
+    """
+    Analyze normalized profitability by persona.
+
+    Args:
+        trader_features: Engineered trader feature DataFrame.
+
+    Returns:
+        DataFrame containing average and median ROI by persona.
+    """
 
     roi_summary = (
         trader_features

@@ -1,3 +1,10 @@
+"""
+Predict a current trader's behavioral segment.
+
+This module loads the saved scaler and KMeans model, transforms incoming
+trader features, and returns the predicted cluster ID.
+"""
+
 import joblib
 import pandas as pd
 
@@ -7,6 +14,12 @@ from configs.model_config import CLUSTERING_FEATURES
 
 
 def load_models():
+    """
+    Load persisted current-segment inference artifacts.
+
+    Returns:
+        Tuple containing fitted scaler and trained KMeans model.
+    """
 
     # Load trained scaler
     scaler = joblib.load(MODEL_DIR / "scaler.pkl")
@@ -18,9 +31,19 @@ def load_models():
 
 
 def predict_cluster(trader_features):
+    """
+    Predict the behavioral cluster for a trader feature payload.
+
+    Args:
+        trader_features: Dictionary containing configured clustering features.
+
+    Returns:
+        Integer cluster assignment.
+    """
 
     scaler, kmeans = load_models()
 
+    # Preserve training-time feature order before scaling and prediction.
     feature_df = pd.DataFrame([trader_features], columns=CLUSTERING_FEATURES)
 
     scaled_features = pd.DataFrame(scaler.transform(feature_df),

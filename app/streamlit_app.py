@@ -1,79 +1,124 @@
-from pathlib import Path
-import sys
+"""
+Main Streamlit dashboard for trader intelligence.
+
+This page collects trader behavior inputs, calls the FastAPI prediction
+service, and displays segment insights and recommendations.
+"""
+
+import requests
 import streamlit as st
 
-from src.dashboard.dashboard_service import analyze_trader
+CLUSTER_NAMES = {
+    0: "🔥 High-Risk Gamblers",
+    1: "🛡 Conservative Traders",
+    2: "⚡ Aggressive Swing Traders",
+    3: "🏆 Elite Performers",
+    4: "💀 Capital Destroyers"
+}
 
-ROOT_DIR = Path(__file__).resolve().parent.parent
-sys.path.append(str(ROOT_DIR))
 
-# --------------------------------------------------
-# Page Configuration
-# --------------------------------------------------
+# ==================================================
+# Configuration
+# ==================================================
+
+API_URL = (
+    "https://trader-intelligence-api-532641891308."
+    "asia-south1.run.app/api/v1"
+)
 
 st.set_page_config(
-    page_title="Trader Intelligence Platform",
+    page_title="Home",
     page_icon="📈",
     layout="wide"
 )
 
+
+# ==================================================
+# Hero Section
+# ==================================================
+
 st.title("📈 Trader Intelligence Platform")
-st.markdown(
-    "Analyze trader behavior using machine learning-based segmentation."
+
+st.markdown("""
+### AI-Powered Trader Segmentation & Behavioral Analysis
+
+Analyze trader behavior using machine learning models and discover
+which trader segment a user belongs to based on trading activity,
+profitability, leverage usage, and risk-taking behavior.
+""")
+
+st.divider()
+
+# ==================================================
+# Input Section
+# ==================================================
+
+st.subheader("Trader Analysis")
+
+with st.container():
+
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        st.markdown("#### Trading Activity")
+
+        total_trades = st.number_input(
+            "Total Trades",
+            min_value=1,
+            value=100
+        )
+
+        avg_holding_minutes = st.number_input(
+            "Average Holding Minutes",
+            min_value=1,
+            value=1000
+        )
+
+    with col2:
+        st.markdown("#### Performance Metrics")
+
+        avg_pnl = st.number_input(
+            "Average PnL",
+            value=500.0
+        )
+
+        roi_input = st.number_input(
+            "ROI (%)",
+            value=5.0,
+            step=0.1
+        )
+
+    with col3:
+        st.markdown("#### Risk Metrics")
+
+        avg_leverage = st.number_input(
+            "Average Leverage",
+            min_value=1.0,
+            value=2.0,
+            step=0.1
+        )
+
+        win_rate = st.slider(
+            "Win Rate (%)",
+            min_value=0,
+            max_value=100,
+            value=60
+        )
+
+st.markdown("")
+
+analyze_clicked = st.button(
+    "🔍 Analyze Trader",
+    use_container_width=True,
+    type="primary"
 )
 
+# ==================================================
+# Prediction
+# ==================================================
 
-# --------------------------------------------------
-# Sidebar Inputs
-# --------------------------------------------------
+if analyze_clicked:
 
-st.sidebar.header("Trader Inputs")
-
-total_trades = st.sidebar.number_input(
-    "Total Trades",
-    min_value=1,
-    value=100
-)
-
-avg_pnl = st.sidebar.number_input(
-    "Average PnL",
-    value=500.0
-)
-
-roi_input = st.sidebar.number_input(
-    "ROI (%)",
-    value=5.0,
-    step=0.1
-)
-
-avg_holding_minutes = st.sidebar.number_input(
-    "Average Holding Minutes",
-    min_value=1,
-    value=1000
-)
-
-avg_leverage = st.sidebar.number_input(
-    "Average Leverage",
-    min_value=1.0,
-    value=2.0,
-    step=0.1
-)
-
-win_rate = st.sidebar.slider(
-    "Win Rate (%)",
-    min_value=0,
-    max_value=100,
-    value=60
-)
-
-
-# --------------------------------------------------
-# Analyze Trader
-# --------------------------------------------------
-
-if st.sidebar.button("Analyze Trader"):
-
-    # Convert percentage inputs to model format
     trader_features = {
         "total_trades": total_trades,
         "avg_pnl": avg_pnl,
@@ -83,43 +128,72 @@ if st.sidebar.button("Analyze Trader"):
         "win_rate": win_rate / 100
     }
 
-    result = analyze_trader(
-        trader_features
-    )
+    with st.spinner("Analyzing trader behavior..."):
 
-    # ----------------------------------------------
-    # Prediction Results
-    # ----------------------------------------------
-
-    st.subheader("Trader Intelligence Report")
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        st.metric(
-            "Cluster",
-            result["cluster"]
+        response = requests.post(
+            f"{API_URL}/predict-current-segment",
+            json=trader_features
         )
 
-    with col2:
+        result = response.json()
+
+    st.divider()
+
+    # ==================================================
+    # Results Dashboard
+    # ==================================================
+
+    st.subheader("📊 Trader Intelligence Report")
+
+    metric_col1, metric_col2 = st.columns(2)
+
+    with metric_col1:
         st.metric(
-            "Segment",
-            result["segment"]
+            label="Predicted Cluster",
+            value=result["cluster"]
         )
 
-    st.markdown("---")
+    with metric_col2:
+        st.metric(
+            label="Trader Segment",
+            value=result["segment"]
+        )
 
-    st.subheader("Segment Description")
+    st.markdown("")
+
+    # ==================================================
+    # Segment Description
+    # ==================================================
+
+    st.subheader("🧠 Segment Insight")
 
     st.info(
         result["description"]
     )
 
-    st.subheader("Recommendations")
+    # ==================================================
+    # Recommendations
+    # ==================================================
 
-    for recommendation in result[
-        "recommendations"
-    ]:
-        st.success(
-            recommendation
-        )
+    st.subheader("✅ Recommendations")
+
+    for recommendation in result["recommendations"]:
+        st.success(recommendation)
+
+# ==================================================
+# Footer
+# ==================================================
+
+st.divider()
+
+with st.expander("About This Platform"):
+    st.write(
+        """
+        The Trader Intelligence Platform uses machine learning models
+        trained on trader behavior data to identify trading styles,
+        risk profiles, and trader segments.
+
+        The system combines clustering and predictive analytics to
+        generate actionable trader insights and recommendations.
+        """
+    )

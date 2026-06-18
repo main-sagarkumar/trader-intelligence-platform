@@ -30,17 +30,15 @@ from configs.model_config import (
 from configs.paths_config import FEATURE_STORE_DIR, MODEL_DIR
 
 
-# ──────────────────────────────────────────────
+
 # Constants
-# ──────────────────────────────────────────────
 
 INPUT_FILE = FEATURE_STORE_DIR / "early_trader_features.csv"
 MODEL_FILE = MODEL_DIR / "segment_classifier.pkl"
 
 
-# ──────────────────────────────────────────────
+
 # Data Loading
-# ──────────────────────────────────────────────
 
 def load_data() -> pd.DataFrame:
     """
@@ -53,9 +51,8 @@ def load_data() -> pd.DataFrame:
     return pd.read_csv(INPUT_FILE)
 
 
-# ──────────────────────────────────────────────
+
 # Train-Test Split
-# ──────────────────────────────────────────────
 
 def prepare_data(df: pd.DataFrame):
     """
@@ -80,9 +77,8 @@ def prepare_data(df: pd.DataFrame):
     )
 
 
-# ──────────────────────────────────────────────
+
 # Model Training
-# ──────────────────────────────────────────────
 
 def train_model(X_train, y_train) -> RandomForestClassifier:
     """
@@ -108,9 +104,8 @@ def train_model(X_train, y_train) -> RandomForestClassifier:
     return model
 
 
-# ──────────────────────────────────────────────
+
 # Model Evaluation
-# ──────────────────────────────────────────────
 
 def evaluate_model(model, X_test, y_test) -> None:
     """
@@ -157,9 +152,8 @@ def evaluate_model(model, X_test, y_test) -> None:
     )
 
 
-# ──────────────────────────────────────────────
+
 # Feature Importance
-# ──────────────────────────────────────────────
 
 def show_feature_importance(model) -> None:
     """
@@ -190,9 +184,7 @@ def show_feature_importance(model) -> None:
     print(importance_df)
 
 
-# ──────────────────────────────────────────────
 # Model Persistence
-# ──────────────────────────────────────────────
 
 def save_model(model) -> None:
     """
@@ -208,9 +200,7 @@ def save_model(model) -> None:
     )
 
 
-# ──────────────────────────────────────────────
 # Entry Point
-# ──────────────────────────────────────────────
 
 if __name__ == "__main__":
 

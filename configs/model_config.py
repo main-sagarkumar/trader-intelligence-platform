@@ -1,5 +1,9 @@
-''' Model configuration shared across feature engineering,
-clustering, and prediction modules. '''
+"""
+Store shared model and feature configuration for the ML platform.
+
+This module keeps feature lists, target names, random seeds, and training
+parameters consistent across feature engineering, clustering, and prediction.
+"""
 
 CLUSTERING_FEATURES = [
     "total_trades",

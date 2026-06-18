@@ -1,4 +1,9 @@
-# src/ingestion/schema.py
+"""
+Define reference schemas for trade transaction and trade-leg data.
+
+These dictionaries document expected raw market activity fields for ingestion,
+validation, and future extension toward more granular trade modeling.
+"""
 
 TRADE_TRANSACTION_SCHEMA = {
     "trade_id": "str",
