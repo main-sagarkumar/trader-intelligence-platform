@@ -17,7 +17,9 @@ import joblib
 import pandas as pd
 
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, classification_report, confusion_matrix
+from sklearn.metrics import (accuracy_score, classification_report, confusion_matrix,
+                            precision_score,recall_score,f1_score,)
+
 from sklearn.model_selection import train_test_split
 
 from configs.model_config import (
@@ -29,7 +31,14 @@ from configs.model_config import (
 )
 from configs.paths_config import FEATURE_STORE_DIR, MODEL_DIR
 
+# Adding ML FLow
+import mlflow
+from mlflow.sklearn import log_model
 
+from src.monitoring.mlflow_tracker import start_experiment
+
+import matplotlib.pyplot as plt
+import seaborn as sns
 
 # Constants
 
@@ -107,25 +116,37 @@ def train_model(X_train, y_train) -> RandomForestClassifier:
 
 # Model Evaluation
 
-def evaluate_model(model, X_test, y_test) -> None:
-    """
-    Evaluate model performance on unseen data.
+def evaluate_model(model, X_test, y_test):
+    """Evaluate model and return metrics."""
 
-    Args:
-        model:
-            Trained classifier.
-
-        X_test:
-            Test features.
-
-        y_test:
-            Test labels.
-    """
     predictions = model.predict(X_test)
 
-    accuracy = accuracy_score(
+    accuracy = accuracy_score(y_test,predictions,)
+
+    precision = precision_score(
+        y_test,predictions,
+        average="weighted",
+        zero_division=0,
+    )
+
+    recall = recall_score(
         y_test,
         predictions,
+        average="weighted",
+        zero_division=0,
+    )
+
+    f1 = f1_score(
+        y_test,
+        predictions,
+        average="weighted",
+        zero_division=0,
+    )
+
+    report = classification_report(
+        y_test,
+        predictions,
+        zero_division=0,
     )
 
     print("\n" + "=" * 80)
@@ -135,33 +156,84 @@ def evaluate_model(model, X_test, y_test) -> None:
     print(f"\nAccuracy: {accuracy:.4f}")
 
     print("\nClassification Report:")
-    print(
-        classification_report(
-            y_test,
-            predictions,
-            zero_division=0
-        )
+    print(report)
+
+    # Save report for MLflow 
+
+    report_file = (
+        FEATURE_STORE_DIR.parent
+        / "reports"
+        / "classification_report.txt"
+    )
+
+    report_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    print(type(report))
+
+    with open(report_file, "w") as f:
+        f.write(str(report)) 
+
+    cm = confusion_matrix(
+        y_test,
+        predictions,
     )
 
     print("\nConfusion Matrix:")
-    print(
-        confusion_matrix(
-            y_test,
-            predictions,
-        )
+    print(cm)
+
+    return {
+        "accuracy": accuracy,
+        "precision": precision,
+        "recall": recall,
+        "f1_score": f1,
+        "report_file": report_file,
+        "confusion_matrix": cm,
+    }
+
+def save_confusion_matrix(cm):
+    """Save confusion matrix image."""
+
+    output_file = (
+        FEATURE_STORE_DIR.parent
+        / "reports"
+        / "confusion_matrix.png"
     )
 
+    output_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    plt.figure(figsize=(6, 4))
+
+    sns.heatmap(
+        cm,
+        annot=True,
+        fmt="d",
+        cmap="Blues",
+    )
+
+    plt.title("Confusion Matrix")
+    plt.xlabel("Predicted")
+    plt.ylabel("Actual")
+
+    plt.tight_layout()
+
+    plt.savefig(output_file)
+
+    plt.close()
+
+    return output_file
 
 
 # Feature Importance
 
-def show_feature_importance(model) -> None:
+def show_feature_importance(model):
     """
-    Display feature importance rankings.
-
-    Args:
-        model:
-            Trained Random Forest model.
+    Display feature importance rankings..
     """
     importance_df = (
         pd.DataFrame(
@@ -182,6 +254,23 @@ def show_feature_importance(model) -> None:
     print("=" * 80)
 
     print(importance_df)
+
+    output_file = (
+        FEATURE_STORE_DIR.parent /
+        "reports" /
+        "feature_importance.csv"
+    )
+
+    output_file.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    importance_df.to_csv(
+        output_file,
+        index=False,
+    )
+    return output_file
 
 
 # Model Persistence
@@ -204,23 +293,67 @@ def save_model(model) -> None:
 
 if __name__ == "__main__":
 
-    df = load_data()
+    with start_experiment(
+        "future_segment_prediction"
+    ):
 
-    X_train, X_test, y_train, y_test = prepare_data(df)
+        df = load_data()
 
-    model = train_model(
-        X_train,
-        y_train,
-    )
+        X_train, X_test, y_train, y_test = prepare_data(df)
 
-    evaluate_model(
-        model,
-        X_test,
-        y_test,
-    )
+        model = train_model(
+            X_train,
+            y_train,
+        )
 
-    show_feature_importance(model)
+        # Model settings
+        mlflow.log_param(
+            "n_estimators",
+            RF_N_ESTIMATORS,
+        )
 
-    save_model(model)
+        mlflow.log_param(
+            "test_size",
+            TEST_SIZE,
+        )
 
-    print(f"\nModel saved to:\n{MODEL_FILE}")
+        metrics = evaluate_model(
+            model,
+            X_test,
+            y_test,
+        )
+
+        # Performance metrics
+        mlflow.log_metrics(
+            {
+                "accuracy": metrics["accuracy"],
+                "precision": metrics["precision"],
+                "recall": metrics["recall"],
+                "f1_score": metrics["f1_score"],
+            }
+        )
+    
+        file = show_feature_importance(model)
+
+        cm_png = save_confusion_matrix(metrics["confusion_matrix"])
+
+        # Upload the artifacts
+        mlflow.log_artifact(metrics['report_file'])
+        mlflow.log_artifact(str(file)) 
+        mlflow.log_artifact(str(cm_png))  
+
+        save_model(model)
+
+        # Log Model
+        model_info = log_model(
+            sk_model=model,
+            name="segment_classifier",
+        )
+
+        # Register model version
+        mlflow.register_model(
+            model_uri=model_info.model_uri,
+            name = "segment_classifier"
+        )
+
+        print(f"\nModel saved to:\n{MODEL_FILE}")

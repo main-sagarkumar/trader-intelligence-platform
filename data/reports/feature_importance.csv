@@ -1,0 +1,9 @@
+feature,importance
+early_avg_holding_minutes,0.2523039462098217
+early_avg_risk_pct,0.22414766761606533
+early_avg_leverage,0.2082917383447726
+early_overnight_position_rate,0.09993870588165359
+early_stop_loss_usage_rate,0.0874469804396226
+early_avg_pnl,0.08045833702484828
+early_win_rate,0.043410699817490704
+early_total_trades,0.004001924665725109
